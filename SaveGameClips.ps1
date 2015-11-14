@@ -36,13 +36,19 @@ Function Set-FileTimeStamps{
 # Get the information from https://xboxapi.com/
 ## Replace ######################## with your XboxAPI API Key
 ## Replace @@@@@@@@@@@@@@@@@@@@ with your XBOX Profile User ID
-$AllClips=(invoke-webrequest -Headers @{"X-AUTH" = "########################"} https://xboxapi.com/v2/@@@@@@@@@@@@@@@@@@@@/game-clips)
+$APIKey="########################"
+$profileID="@@@@@@@@@@@@@@@@@@@@"
+$AllClips=(invoke-webrequest -Headers @{"X-AUTH" = "$APIKey"} https://xboxapi.com/v2/$profileID/game-clips)
 
 # Replace "Z:\XBox One Games" with your folder location
 $gameVidSaveLocation="Z:\XBox One Games"
 
 # Convert the information to usable form
 $content=$AllClips.content | convertfrom-json
+
+# Prepare variables to be used later for alerting
+$numberOfDownloadedRecords=0
+$allClipNames=@()
 
 # Process each clip record recieved
 foreach($c in $content){
@@ -110,6 +116,7 @@ foreach($c in $content){
     # Check to see if the clip being processed has already had the thumnails and clip downloaded.  If any one of the 3 files has not been downlaoded, downlaod and replace
     if((Test-Path $vidSaveLocation) -and (Test-Path $stSaveLocation) -and (Test-Path $ltSaveLocation)){
         #do nothing, the fileset was already downloaded
+        
     }
     else{
         
@@ -124,6 +131,98 @@ foreach($c in $content){
         # Download the video clip, set the timestamps on the video clip to the actual time it was recorded
         Invoke-WebRequest -Uri "$largeThumnbnailuri" -OutFile "$ltSaveLocation"
         Set-FileTimeStamps -path "$ltSaveLocation" -date "$recordedWhenEST"
+        
+        # Store information to be used for alerting
+        ## Set how many clips are being downloaded
+        $numberOfDownloadedRecords++
+
+        ## Set each file name and their recorded time to a variable
+        $allClipNames+=$c | select @{label="FileName";expression={$vidFileName}},@{label="RecordedWhen";expression={$recordedWhenEST}}
+        $allClipNames+=$c | select @{label="FileName";expression={$stFileName}},@{label="RecordedWhen";expression={$recordedWhenEST}}
+        $allClipNames+=$c | select @{label="FileName";expression={$ltFileName}},@{label="RecordedWhen";expression={$recordedWhenEST}}
     }
 
+}
+
+
+# Notify via Email and Xbox Messages when there are clips that were downloaded
+if($numberOfDownloadedRecords -gt 0){
+    # Set Mail Variables
+    ## Variables different depending on SMTP service used and credentials: $mailServer, $mailPort, $mailUsername, $mailSecurePass
+    ## $mailSecurePass must have file to pull from.  To create file: convertto-securestring -String "password" -AsPlainText -force | convertfrom-securestring | out-file Z:\smtpCred
+    $mailServer="smtp.server.com"
+    $mailPort="25"
+    $mailUsername="mailUsername@server.com"
+    $mailSecurePass=get-content "Z:\smtpCred" | ConvertTo-SecureString
+    $mailCredentials=New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "$mailUsername",$mailSecurePass
+    $mailTo="Mail User <mailUsername@server.com>"
+    $mailFrom="Xbox One Clip Downloader <mailUsername@server.com>"
+    $mailSubject=$(
+
+        if($numberOfDownloadedRecords -eq "1"){
+            "Xbox One Clip Downloader: $numberOfDownloadedRecords clip has been downloaded"
+        }
+        else{
+            "Xbox One Clip Downloader: $numberOfDownloadedRecords clips have been downloaded"        
+        }
+
+
+        )
+        [string]$mailBody=$(
+    
+            if($numberOfDownloadedRecords -eq "1"){
+                "$numberOfDownloadedRecords clip, and it's thumbnails, have been downloaded:`n`n"
+            }
+            else{
+                "$numberOfDownloadedRecords clips, and their thumbnails, have been downloaded:`n`n"        
+            }
+
+            foreach($a in $allClipNames){
+                $fileName=$a.FileName
+                $recordedWhen=$a.RecordedWhen
+
+                if($fileName -like '*.mp4'){
+                    "Recorded $recordedWhen`n"
+                    "  Video: $fileName`n"
+                }
+                elseif($fileName -like '*small*.png'){
+                    "    Small Thumbnail: $fileName`n"
+                }
+                elseif($fileName -like '*large*.png'){
+                    "    Large Thumbnail: $fileName`n`n"
+                }
+            }
+
+
+        )
+
+        Send-MailMessage -SmtpServer $mailServer -Credential $mailCredentials -From $mailFrom -To $mailTo -Body $mailBody -Subject $mailSubject -UseSsl -Port $mailPort
+
+
+        # Set and Send Xbox Message
+        ## Set Xbox Message
+        $xboxMessageBody=$(
+    
+            if($numberOfDownloadedRecords -eq "1"){
+                "$numberOfDownloadedRecords clip, and it's thumbnails, have been downloaded to your computer.  Check your email for more information."
+            }
+            else{
+                "$numberOfDownloadedRecords clips, and their thumbnails, have been downloaded to your computer.  Check your email for more information."        
+            }
+        )
+
+        ## Convert Xbox Message to JSON
+        $json=$("{`
+        `"to`": [`
+            `"$profileID`"`
+        ],`
+        `"message`": `"$xboxMessageBody`"`
+        }"`
+        )
+        
+        ## Send Xbox Message
+        Invoke-WebRequest -uri "https://xboxapi.com/v2/messages" -Method post -Body $json -Headers @{"X-AUTH" = "$APIKey"} -ContentType "application/json"
+}
+else{
+    #do not notify, nothing to notify on
 }
