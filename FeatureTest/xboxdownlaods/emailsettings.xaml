@@ -1,0 +1,29 @@
+<Window
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	Title="Email Settings" Width="500" Height="235" Topmost="True" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" WindowStyle="None" BorderThickness="1" BorderBrush="#000000"  Cursor="ScrollAll">
+
+	<Grid Name="gr_Container">
+		<Label Content="E-Mail Server:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50.176,10,0,0" Cursor="Arrow"/>
+		<TextBox Name="tb_EMailServer" HorizontalAlignment="Left" Height="23" Margin="132.649,11.48,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="300" Cursor="IBeam"/>
+		<Label Name="lbl_EMailServerError" Content="*" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="437.649,6.849,0,0" FontSize="26.667" Height="27.631" Padding="0" Foreground="Red" FontWeight="Bold" Visibility="Hidden" Cursor="Arrow"/>
+		<Label Content="E-Mail Port:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="61.206,40,0,0" Cursor="Arrow"/>
+		<TextBox Name="tb_EMailPort" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" Margin="132,41.48,0,0" Cursor="IBeam"/>
+		<Label Name="lbl_EMailPortError" Content="*" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="197,36.849,0,0" FontSize="26.667" Height="27.631" Padding="0" Foreground="Red" FontWeight="Bold" Visibility="Hidden" Cursor="Arrow"/>
+		<Label Content="E-Mail Username:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="29.9,70,0,0" Cursor="Arrow"/>
+		<TextBox Name="tb_EMailUsername" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="300" Margin="132,71.48,0,0" Cursor="IBeam"/>
+		<Label Name="lbl_EMailUsernameError" Content="*" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="437,65.703,0,0" FontSize="26.667" Height="27.631" Padding="0" Foreground="Red" FontWeight="Bold" Visibility="Hidden" Cursor="Arrow"/>
+		<Label Content="E-Mail Password:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33.24,100,0,0" Cursor="Arrow"/>
+		<PasswordBox Name="pb_EMailPassword" HorizontalAlignment="Left" Margin="132,99.98,0,0" VerticalAlignment="Top" Width="300" Height="26" Cursor="IBeam"/>
+		<Label Name="lbl_EMailPasswordError" Content="*" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="437,97.203,0,0" FontSize="26.667" Height="27.631" Padding="0" Foreground="Red" FontWeight="Bold" Visibility="Hidden" Cursor="Arrow"/>
+		<Label Content="E-Mail From Address:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,130,0,0" Cursor="Arrow"/>
+		<TextBox Name="tb_EMailFromAddress" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="300" Margin="132,131.48,0,0" Cursor="IBeam"/>
+		<Label Name="lbl_EMailFromAddressError" Content="*" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="437,124.834,0,0" FontSize="26.667" Height="27.631" Padding="0" Foreground="Red" FontWeight="Bold" Visibility="Hidden" Cursor="Arrow"/>
+		<Label Content="E-Mail To Address:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24.083,160,0,0" Cursor="Arrow"/>
+		<TextBox Name="tb_EMailToAddress" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="300" Margin="132,161.48,0,0" Cursor="IBeam"/>
+		<Label Name="lbl_EMailToAddressError" Content="*" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="437,155.703,0,0" FontSize="26.667" Height="27.631" Padding="0" Foreground="Red" FontWeight="Bold" Visibility="Hidden" Cursor="Arrow"/>
+		
+		<Button Name="btn_EmailSettings_Save" Content="Save E-Mail Settings" HorizontalAlignment="Left" Margin="376.716,202.54,0,0" VerticalAlignment="Top" Cursor="Arrow"/>
+		<Button Name="btn_EmailSettings_Discard" Content="Discard Settings and Close" HorizontalAlignment="Left" Margin="10,202.54,0,0" VerticalAlignment="Top" Cursor="Arrow"/>
+		
+	</Grid>
+</Window>

@@ -1,0 +1,17 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApplication2", "WpfApplication2\WpfApplication2.csproj", "{77ED13AD-D226-4E1C-8BDA-72BBE151B85F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{77ED13AD-D226-4E1C-8BDA-72BBE151B85F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77ED13AD-D226-4E1C-8BDA-72BBE151B85F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77ED13AD-D226-4E1C-8BDA-72BBE151B85F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77ED13AD-D226-4E1C-8BDA-72BBE151B85F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
