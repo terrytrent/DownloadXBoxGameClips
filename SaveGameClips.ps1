@@ -42,7 +42,7 @@ $GameClips=(invoke-webrequest -Headers @{"X-AUTH" = "$APIKey"} https://xboxapi.c
 $SavedClips=(invoke-webrequest -Headers @{"X-AUTH" = "$APIKey"} https://xboxapi.com/v2/$profileID/game-clips/saved)
 
 # Replace "Z:\XBox One Games" with your folder location
-$gameVidSaveLocation="Z:\XBox One Games_Hoov"
+$gameVidSaveLocation="Z:\XBox One Game"
 
 # Convert the information to usable form
 $GCcontent=$GameClips.content | convertfrom-json
