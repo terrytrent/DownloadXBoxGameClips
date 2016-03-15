@@ -38,26 +38,29 @@ Function Set-FileTimeStamps{
 ## Replace @@@@@@@@@@@@@@@@@@@@ with your XBOX Profile User ID
 $APIKey="########################"
 $profileID="@@@@@@@@@@@@@@@@@@@@"
-$AllClips=(invoke-webrequest -Headers @{"X-AUTH" = "$APIKey"} https://xboxapi.com/v2/$profileID/game-clips)
+$GameClips=(invoke-webrequest -Headers @{"X-AUTH" = "$APIKey"} https://xboxapi.com/v2/$profileID/game-clips)
+$SavedClips=(invoke-webrequest -Headers @{"X-AUTH" = "$APIKey"} https://xboxapi.com/v2/$profileID/game-clips/saved)
 
 # Replace "Z:\XBox One Games" with your folder location
-$gameVidSaveLocation="Z:\XBox One Games"
+$gameVidSaveLocation="Z:\XBox One Games_Hoov"
 
 # Convert the information to usable form
-$content=$AllClips.content | convertfrom-json
+$GCcontent=$GameClips.content | convertfrom-json
+$SCcontent=$SavedClips.content | convertfrom-json
 
-# Prepare variables to be used later for alerting
+$AllContent=$($GCcontent + $SCContent) | select -Unique *
+
 $numberOfDownloadedRecords=0
 $allClipNames=@()
 
 # Process each clip record recieved
-foreach($c in $content){
+foreach($clip in $AllContent){
     
     # Store the game name
-    $game=$c.titleName
+    $game=$clip.titleName
 
     # Store the date and time the clip was recorded
-    $recordedWhenGMT=$c.dateRecorded
+    $recordedWhenGMT=$clip.dateRecorded
     
     # Convert the date and time the clip was recorded to usable form
     ## Change this as you need to fix the timestamp ( you can change the name of the variable, just make sure it is updated though the rest of the script ), change the -5 to whatever is needed
@@ -67,18 +70,20 @@ foreach($c in $content){
     $recordedWhen=get-date $recordedWhenEST -Format "yyyy-MM-dd_HH.mm.ss"
     
     # Store thumbnail information in variable
-    $thumbnails=$c.thumbnails
+    $thumbnails=$clip.thumbnails
 
     # Store the uri of the small and large thumnails into variables
     $smallThumnbnailuri=($thumbnails | where {$_.thumbnailType -eq "Small"}).uri
     $largeThumnbnailuri=($thumbnails | where {$_.thumbnailType -eq "Large"}).uri
 
+    $videoUris=$clip.gameClipUris | where {$_.uri -like "*mp4*"}
+
     # Store the video URI into a variable
-    $videoUri=$c.gameClipUris.uri
+    $videoUri=$videoUris.uri
 
     # Store the video size into a variable
     ## Not currently used in the script, but could be used for logging or reporting functions if added to the script
-    $videoSizeInBytes=$c.gameClipUris.fileSize
+    $videoSizeInBytes=$videoUris.fileSize
 
     # Convert the size of the video to Megabytes
     ## Not currently used in the script, but could be used for logging or reporting functions if added to the script
@@ -87,6 +92,27 @@ foreach($c in $content){
     # Store a short name of the game into a variable, currently only configrued for Halo.  If not halo, short name is "Xbox One Game"
     if($game -eq "Halo 5: Guardians"){
         $gameShort="Halo_5"
+    }
+    elseif($game -eq "Destiny"){
+        $gameShort="Destiny"
+    }
+    elseif($game -eq "TOM CLANCY'S THE DIVISION  BETA"){
+        $gameShort="Division_Beta"
+    }
+    elseif($game -eq "Halo: The Master Chief Collection"){
+        $gameShort="Halo_MCC"
+    }
+    elseif($game -eq "Assassin's Creed IV Black Flag"){
+        $gameShort="Assassins_Creed_4_Black_Flag"
+    }
+    elseif($game -eq "Destiny Beta"){
+        $gameShort="Destiny_Beta"
+    }
+    elseif($game -eq "Titanfall"){
+        $gameShort="Titanfall"
+    }
+    elseif($game -eq "Battlefield 4"){
+        $gameShort="Battlefield_4"
     }
     else{
         $gameShort="Xbox One Game"
@@ -132,11 +158,7 @@ foreach($c in $content){
         Invoke-WebRequest -Uri "$largeThumnbnailuri" -OutFile "$ltSaveLocation"
         Set-FileTimeStamps -path "$ltSaveLocation" -date "$recordedWhenEST"
         
-        # Store information to be used for alerting
-        ## Set how many clips are being downloaded
         $numberOfDownloadedRecords++
-
-        ## Set each file name and their recorded time to a variable
         $allClipNames+=$c | select @{label="FileName";expression={$vidFileName}},@{label="RecordedWhen";expression={$recordedWhenEST}}
         $allClipNames+=$c | select @{label="FileName";expression={$stFileName}},@{label="RecordedWhen";expression={$recordedWhenEST}}
         $allClipNames+=$c | select @{label="FileName";expression={$ltFileName}},@{label="RecordedWhen";expression={$recordedWhenEST}}
